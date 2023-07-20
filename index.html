@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    <style>
+      #container {
+        height: 400px;
+      }
+
+      .highcharts-figure,
+      .highcharts-data-table table {
+        min-width: 310px;
+        max-width: 800px;
+        margin: 1em auto;
+      }
+
+      .highcharts-data-table table {
+        font-family: Verdana, sans-serif;
+        border-collapse: collapse;
+        border: 1px solid #ebebeb;
+        margin: 10px auto;
+        text-align: center;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .highcharts-data-table caption {
+        padding: 1em 0;
+        font-size: 1.2em;
+        color: #0a0909;
+      }
+
+      .highcharts-data-table th {
+        font-weight: 600;
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table td,
+      .highcharts-data-table th,
+      .highcharts-data-table caption {
+        padding: 0.5em;
+      }
+
+      .highcharts-data-table thead tr,
+      .highcharts-data-table tr:nth-child(even) {
+        background: #faf0f0;
+      }
+
+      .highcharts-data-table tr:hover {
+        background: #eeeaea;
+      }
+    </style>
+  </head>
+  <!----filter: blur(8px);
+    -webkit-filter: blur(8px); -->
+  <body
+    style="
+      background-color:rgb(199, 187, 189);
+      background-position: 0%;
+      background-size: contain;
+    "
+  >
+    <div class="background">
+      <div class="mb-4 p-3 bg-primary text white" id="i">
+        <nav
+          class="navbar navbar-expand-sm bg-b navbar-light"
+      >
+          <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+              <button type="button" id="update" class="btn btn-primary">
+                UPDATE WEATHER
+              </button>
+              <div id="weatherContainer"></div>
+            </a>
+
+            <h5 class="weather" style="color: rgb(43, 39, 39)">
+              WE<span style="color: rgb(33, 33, 250); margin-right: 100px"
+                >ATHER</span
+              >
+            </h5>
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" href="#" id="movies"
+                  >Weather Today</a
+                >
+                <ul id="weatherList"></ul>
+              </li>
+              <li class="nav-item" id="a">
+                <a class="nav-link" href="#" id="toprated">Hot places</a>
+                <div id="hotCity"></div>
+              </li>
+              <li class="nav-item" id="a">
+                <a class="nav-link" href="#" id="series">Cold places</a>
+                <div id="coldCity"></div>
+              </li>
+              <li class="nav-item" id="a">
+                <a class="nav-link" href="#" id="a"></a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="d-flex" role="search">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Enter city name"
+              style="border: none; border-radius: 25px"
+            />
+            <button type="button" class="btn btn-primary" id="search">
+              search
+            </button>
+            <div id="weatherContainer"></div>
+          </div>
+        </nav>
+      </div>
+      <div id="openweathermap-widget-11" style="margin-left: 10px"></div>
+      <script src="//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js"></script>
+      <script>
+        window.myWidgetParam
+          ? window.myWidgetParam
+          : (window.myWidgetParam = []);
+        window.myWidgetParam.push({
+          id: 11,
+          cityid: "344979",
+          appid: "b53bb6adf1943959415b4161b2a65cce",
+          units: "metric",
+          containerid: "openweathermap-widget-11",
+        });
+        (function () {
+          var script = document.createElement("script");
+          script.async = true;
+          script.charset = "utf-8";
+          script.src =
+            "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(script, s);
+        })();
+      </script>
+      <div id="charts" class="container m-3">
+        <div id="temperature-line-chart"></div>
+        <div id="humidity-pressure-chart"></div>
+        <div id="pollution-chart"></div>
+        <div id="temperature-min-max-chart"></div>
+      </div>
+
+      <div class="container m-3 d-none">
+        <div
+          class="row"
+          id="container"
+          style="margin-left: 100px; width: 1300px"
+        ></div>
+      </div>
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <script src="https://code.highcharts.com/highcharts-more.js"></script>
+      <script src="https://code.highcharts.com/modules/exporting.js"></script>
+      <script src="https://code.highcharts.com/modules/export-data.js"></script>
+      <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+      <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"
+      ></script>
+
+      <script>
+        async function fetchTemperatureLine(latitude, longitude, apiKey) {
+          const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+          const dateTemps = {};
+
+          data.list.forEach((datum) => {
+            const date = datum.dt_txt.split(" ")[0];
+            if (dateTemps[date] === undefined) dateTemps[date] = [];
+            dateTemps[date].push(datum.main.temp);
+          });
+
+          let averages = [];
+          let ranges = [];
+
+          for (const i in dateTemps) {
+            var minimumTemp = Math.min.apply(Math, dateTemps[i]);
+            var maximumTemp = Math.max.apply(Math, dateTemps[i]);
+
+            const avg = (minimumTemp + maximumTemp) / 2;
+
+            averages.push(avg);
+            ranges.push([minimumTemp, maximumTemp]);
+          }
+
+          return averages;
+        }
+
+        drawTemperatureLine([0, 1, 5, 9]);
+        function drawTemperatureLine(temperatures) {
+          const xLabels = [];
+          for (let i = 0; i < temperatures.length; i++) {
+            xLabels.push(i + 1);
+          }
+
+          // Data retrieved https://en.wikipedia.org/wiki/List_of_cities_by_average_temperature
+          Highcharts.chart("temperature-line-chart", {
+            chart: {
+              type: "line",
+            },
+            title: {
+              text: "Temperature 5 day forecast",
+            },
+
+            xAxis: {
+              categories: xLabels,
+            },
+            yAxis: {
+              title: {
+                text: "Temperature (°C)",
+              },
+            },
+            plotOptions: {
+              line: {
+                dataLabels: {
+                  enabled: true,
+                },
+                enableMouseTracking: false,
+              },
+            },
+            series: [
+              {
+                name: "Daily Averages",
+                data: temperatures,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        async function fetchTemperatureMinMax(latitude, longitude, apiKey) {
+          const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+
+          const response = await fetch(apiUrl);
+          const data = await response.json();
+          const tempData = {};
+
+          data.list.forEach((tempD) => {
+            const date = tempD.dt_txt.split(" ")[0];
+            if (tempData[date] === undefined) tempData[date] = [];
+            tempData[date].push(tempD.main.temp);
+          });
+          let minTemp = [];
+          let maxTemp = [];
+
+          for (const i in tempData) {
+            var minimumTemp = Math.min.apply(Math, tempData[i]);
+            var maximumTemp = Math.max.apply(Math, tempData[i]);
+
+            minTemp.push(minimumTemp);
+            maxTemp.push(maximumTemp);
+          }
+          return { minTemp, maxTemp };
+        }
+
+        function drawTemperatureMinMax({ minTemp, maxTemp }) {
+          Highcharts.chart("temperature-min-max-chart", {
+            chart: {
+              type: "area",
+            },
+            title: {
+              text: "Minimum and Maximum temperatures over the next five days",
+              align: "left",
+            },
+            subtitle: {
+              text: null,
+              align: "left",
+            },
+            yAxis: {
+              title: {
+                useHTML: true,
+                text: null,
+              },
+            },
+            tooltip: {
+              shared: true,
+              headerFormat:
+                '<span style="font-size:12px"><b>{point.key}</b></span><br>',
+            },
+            plotOptions: {
+              series: {
+                pointStart: 0,
+              },
+              area: {
+                stacking: "normal",
+                lineColor: "#666666",
+                lineWidth: 1,
+                marker: {
+                  lineWidth: 1,
+                  lineColor: "#666666",
+                },
+              },
+            },
+            series: [
+              {
+                name: "Maximum Temperature",
+                data: maxTemp,
+              },
+              {
+                name: "Minimum Temperture",
+                data: minTemp,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        async function getClimateEffects(latitude, longitude, apiKey) {
+          const dataUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+
+          const response = await fetch(dataUrl);
+          const data = await response.json();
+
+          const climateData = {};
+          climateData["humidity"] = [];
+          climateData["pressure"] = [];
+
+          data.list.forEach((datac) => {
+            climateData["humidity"].push(Number(datac.main.humidity) * 100);
+            climateData["pressure"].push(Number(datac.main.pressure));
+          });
+
+          return climateData;
+        }
+
+        function drawHumidityPressure({ humidity, pressure }) {
+          Highcharts.chart("humidity-pressure-chart", {
+            chart: {
+              type: "area",
+            },
+            accessibility: {
+              description: null,
+            },
+            title: {
+              text: "Humidity and Pressure over the next five days",
+            },
+            subtitle: {
+              text: null,
+            },
+            xAxis: {
+              allowDecimals: false,
+              accessibility: {
+                rangeDescription: null,
+              },
+            },
+            yAxis: {
+              title: {
+                text: null,
+              },
+            },
+            tooltip: {
+              pointFormat: "",
+            },
+            plotOptions: {
+              area: {
+                pointStart: 0,
+                marker: {
+                  enabled: false,
+                  symbol: "circle",
+                  radius: 2,
+                  states: {
+                    hover: {
+                      enabled: true,
+                    },
+                  },
+                },
+              },
+            },
+            series: [
+              {
+                name: "Humidity in pa",
+                data: humidity,
+              },
+              {
+                name: "Pressure in hpa",
+                data: pressure,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        async function fetchAirPollution(latitude, longitude, apiKey) {
+          const dataUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+          const response = await fetch(dataUrl);
+          const data = await response.json();
+
+          const bigElements = new Set();
+          bigElements.add("co");
+          bigElements.add("nh3");
+          bigElements.add("no2");
+
+          let result = 0;
+
+          const chemicalElements = {};
+          const pollutryElements = data["list"][0]["components"];
+          for (const i in pollutryElements) {
+            if (!bigElements.has(i)) {
+              result += Number(pollutryElements[i]);
+            } else {
+              chemicalElements[i] = Number(pollutryElements[i]);
+            }
+          }
+          chemicalElements["other"] = result;
+          return chemicalElements;
+        }
+        drawPollution({ a: 1, b: 2, c: 5 });
+        function drawPollution(pollutants) {
+          let totalAmount = 0;
+          for (const pollutant in pollutants) {
+            const amount = pollutants[pollutant];
+            totalAmount += amount;
+          }
+
+          const chartFeedData = [];
+          for (const pollutant in pollutants) {
+            const name = pollutant;
+            const amount = pollutants[pollutant];
+            const y = 100 * (amount / totalAmount);
+            chartFeedData.push({ name, y });
+          }
+
+          Highcharts.chart("pollution-chart", {
+            chart: {
+              plotBackgroundColor: null,
+              plotBorderWidth: null,
+              plotShadow: false,
+              type: "pie",
+            },
+            title: {
+              text: "Pollution",
+              align: "left",
+            },
+            tooltip: {
+              pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
+            },
+            accessibility: {
+              point: {
+                valueSuffix: "%",
+              },
+            },
+            plotOptions: {
+              pie: {
+                allowPointSelect: true,
+                cursor: "pointer",
+                dataLabels: {
+                  enabled: true,
+                  format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                },
+              },
+            },
+            series: [
+              {
+                name: "Brands",
+                colorByPoint: true,
+                data: chartFeedData,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        const apiKey = "b53bb6adf1943959415b4161b2a65cce";
+        async function getLocation(placeName, apiKey) {
+          const url = `http://api.openweathermap.org/geo/1.0/direct?q=${placeName}&appid=${apiKey}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          const { lat, lon } = data[0];
+          return [lat, lon];
+        }
+
+        async function searchThenDraw(placeName, apiKey) {
+          const [lat, long] = await getLocation(placeName, apiKey);
+
+          try {
+            drawTemperatureLine(await fetchTemperatureLine(lat, long, apiKey));
+            drawPollution(await fetchAirPollution(lat, long, apiKey));
+            drawHumidityPressure(await getClimateEffects(lat, long, apiKey));
+            drawTemperatureMinMax(
+              await fetchTemperatureMinMax(lat, long, apiKey)
+            );
+          } catch (error) {
+            throw error;
+          }
+        }
+
+        // Add event listener to the button
+        const searchButton = document.getElementById("search");
+        const searchInput = document.getElementById("searchInput");
+        searchButton.addEventListener("click", () => {
+          const placeName = searchInput.value;
+          searchThenDraw(placeName, apiKey);
+        });
+
+        searchThenDraw("Addis Ababa", apiKey);
+      </script>
+    </div>
+  </body>
+</html>
