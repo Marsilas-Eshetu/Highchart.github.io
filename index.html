@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html> -->
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -62,7 +62,7 @@
     -webkit-filter: blur(8px); -->
   <body
     style="
-      background-image: url(rainy.jpg);
+      background-color:pink;
       background-position: 0%;
       background-size: contain;
     "
@@ -71,8 +71,7 @@
       <div class="mb-4 p-3 bg-primary text white" id="i">
         <nav
           class="navbar navbar-expand-sm bg-b navbar-light"
-          style="background-image: url(sanfra2.jpg); background-size: cover"
-        >
+      >
           <div class="container-fluid">
             <a class="navbar-brand" href="#">
               <button type="button" id="update" class="btn btn-primary">
@@ -88,17 +87,17 @@
             </h5>
             <ul class="navbar-nav">
               <li class="nav-item">
-                <a class="nav-link active" href="#" id="weathertoday"
-                  >weather today</a
+                <a class="nav-link active" href="#" id="movies"
+                  >Weather Today</a
                 >
                 <ul id="weatherList"></ul>
               </li>
               <li class="nav-item" id="a">
-                <a class="nav-link" href="#" id="hotplace">HOT places</a>
+                <a class="nav-link" href="#" id="toprated">Hot places</a>
                 <div id="hotCity"></div>
               </li>
               <li class="nav-item" id="a">
-                <a class="nav-link" href="#" id="coldplace">Cold places</a>
+                <a class="nav-link" href="#" id="series">Cold places</a>
                 <div id="coldCity"></div>
               </li>
               <li class="nav-item" id="a">
@@ -106,17 +105,52 @@
               </li>
             </ul>
           </div>
-          <form class="d-flex" role="search">
-            <input type="text" id="searchInput" placeholder="Enter city name" />
+
+          <div class="d-flex" role="search">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Enter city name"
+              style="border: none; border-radius: 25px"
+            />
             <button type="button" class="btn btn-primary" id="search">
               search
             </button>
             <div id="weatherContainer"></div>
-          </form>
+          </div>
         </nav>
       </div>
+      <div id="openweathermap-widget-11" style="margin-left: 10px"></div>
+      <script src="//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/d3.min.js"></script>
+      <script>
+        window.myWidgetParam
+          ? window.myWidgetParam
+          : (window.myWidgetParam = []);
+        window.myWidgetParam.push({
+          id: 11,
+          cityid: "344979",
+          appid: "b53bb6adf1943959415b4161b2a65cce",
+          units: "metric",
+          containerid: "openweathermap-widget-11",
+        });
+        (function () {
+          var script = document.createElement("script");
+          script.async = true;
+          script.charset = "utf-8";
+          script.src =
+            "//openweathermap.org/themes/openweathermap/assets/vendor/owm/js/weather-widget-generator.js";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(script, s);
+        })();
+      </script>
+      <div id="charts" class="container m-3">
+        <div id="temperature-line-chart"></div>
+        <div id="humidity-pressure-chart"></div>
+        <div id="pollution-chart"></div>
+        <div id="temperature-min-max-chart"></div>
+      </div>
 
-      <div class="container m-3">
+      <div class="container m-3 d-none">
         <div
           class="row"
           id="container"
@@ -128,15 +162,7 @@
       <script src="https://code.highcharts.com/modules/exporting.js"></script>
       <script src="https://code.highcharts.com/modules/export-data.js"></script>
       <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-      <figure class="highcharts-figure">
-        <div id="container"></div>
-        <p class="highcharts-description">
-          Chart demonstrating using an arearange series in combination with a
-          line series. In this case, the arearange series is used to visualize
-          the temperature range per day, while the line series shows the average
-          temperature.
-        </p>
-      </figure>
+
       <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
@@ -144,90 +170,7 @@
       ></script>
 
       <script>
-        function drawChart(averages, ranges) {
-          document.getElementById("container").innerHTML = "";
-          Highcharts.chart("container", {
-            title: {
-              text: "Temperature with in the next 5 days",
-              align: "left",
-            },
-
-            subtitle: {
-              text:
-                "Source: " +
-                '<a href="https://www.yr.no/nb/historikk/graf/1-113585/Norge/Viken/Nesbyen/Nesbyen?q=2022-07"' +
-                'target="_blank">YR</a>',
-              align: "left",
-            },
-
-            xAxis: {
-              type: "datetime",
-              accessibility: {
-                rangeDescription: "", //"Range: Jul 1st 2022 to Jul 31st 2022.",
-              },
-            },
-
-            yAxis: {
-              title: {
-                text: "y axis",
-              },
-            },
-
-            tooltip: {
-              crosshairs: true,
-              shared: true,
-              valueSuffix: "°C",
-            },
-
-            plotOptions: {
-              series: {
-                pointStart: Date.UTC(2022, 6, 1),
-                pointIntervalUnit: "day",
-              },
-            },
-
-            series: [
-              {
-                name: "Temperature",
-                data: averages,
-                zIndex: 1,
-                marker: {
-                  fillColor: "white",
-                  lineWidth: 2,
-                  lineColor: Highcharts.getOptions().colors[0],
-                },
-              },
-              {
-                name: "Range",
-                data: ranges,
-                type: "arearange",
-                lineWidth: 0,
-                linkedTo: ":previous",
-                color: Highcharts.getOptions().colors[0],
-                fillOpacity: 0.3,
-                zIndex: 0,
-                marker: {
-                  enabled: false,
-                },
-              },
-            ],
-          });
-        }
-      </script>
-      <script>
-        const apiKey = "fff721680d7794452f175d3d56d49b89";
-        const cities = [
-          { name: "Addis Ababa", latitude: 9.145, longitude: 38.74 },
-          { name: "Dire Dawa", latitude: 9.6, longitude: 41.85 },
-          { name: "Mekelle", latitude: 13.496, longitude: 39.475 },
-          {name: "Arba Minch", latitude:6.0206, longitude: 37.56},
-          {name: "Hawassa", latitude:7.0504, longitude: 38.495},
-          {name: "Bahir Dar", latitude:11.574, longitude: 37.361},
-          {name: "Debre Birhan", latitude:9.6767, longitude: 39.533},
-          
-        ];
-
-        async function fetchCityWeather({ latitude, longitude }, apiKey) {
+        async function fetchTemperatureLine(latitude, longitude, apiKey) {
           const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
           const response = await fetch(apiUrl);
           const data = await response.json();
@@ -251,138 +194,321 @@
             averages.push(avg);
             ranges.push([minimumTemp, maximumTemp]);
           }
-          drawChart(averages, ranges);
-          const temperature = data.list[0].main.temp;
-          const weatherDescription = data.list[0].weather[0].description;
 
-          return { temperature, weatherDescription };
-        }
-        // Add event listener to the button
-        const moviesLink = document.getElementById("weathertoday");
-        moviesLink.addEventListener("click", async () => {
-          for (const city of cities) {
-            const { temperature, weatherDescription } = await fetchCityWeather(
-              city,
-              apiKey
-            );
-            const listItem = document.createElement("li");
-            listItem.textContent = ` ${name}: Temperature: ${temperature}°C, Weather: ${weatherDescription}`;
-
-            // Add the list item to the weather list
-            weatherList.appendChild(listItem);
-          }
-        });
-
-        // Add event listener to the button
-        const updateButton = document.getElementById("update");
-        updateButton.addEventListener("click", async () => {
-          const randomCity = cities[Math.floor(Math.random() * cities.length)];
-          const { temperature, weatherDescription } = await fetchCityWeather(
-            randomCity,
-            apiKey
-          );
-          const weatherContainer = document.getElementById("weatherContainer");
-          weatherContainer.innerHTML = `City: ${randomCity.name}<br>Temperature: ${temperature}°C<br>Weather: ${weatherDescription}`;
-        });
-
-        async function setExtremeCity({ isHottest, htmlElement }) {
-          htmlElement.innerHTML = "";
-
-          const promises = cities.map((city) => fetchCityWeather(city, apiKey));
-          const results = await Promise.all(promises);
-          console.log(results);
-
-          if (!results.length) {
-            hotCity.textContent = "No hot city found";
-            return;
-          }
-
-          let maxName = cities[0].name;
-          let maxTemp = results[0].temperature;
-          for (let i = 0; i < results.length; i++) {
-            if (isHottest === results[i].temperature > maxTemp) {
-              maxName = cities[i].name;
-              maxTemp = results[i].temperature;
-            }
-          }
-
-          if (isHottest) {
-            htmlElement.textContent = `Hottest City: ${maxName}`;
-            console.log(maxName);
-            fetchCityWeatherByName(maxName, apiKey);
-          } else {
-            htmlElement.textContent = `Coldest City: ${maxName}`;
-            console.log(maxName);
-            fetchCityWeatherByName(maxName, apiKey);
-          }
+          return averages;
         }
 
-        // Add event listener to the link
-        const hotPlacesLink = document.getElementById("hotplace");
-        hotPlacesLink.addEventListener("click", async () => {
-          await setExtremeCity({
-            isHottest: true,
-            htmlElement: document.getElementById("hotCity"),
-          });
-        });
+        drawTemperatureLine([0, 1, 5, 9]);
+        function drawTemperatureLine(temperatures) {
+          const xLabels = [];
+          for (let i = 0; i < temperatures.length; i++) {
+            xLabels.push(i + 1);
+          }
 
-        const coldPlacesLink = document.getElementById("coldplace");
-        coldPlacesLink.addEventListener("click", async () => {
-          await setExtremeCity({
-            isHottest: false,
-            htmlElement: document.getElementById("coldCity"),
-          });
-        });
+          // Data retrieved https://en.wikipedia.org/wiki/List_of_cities_by_average_temperature
+          Highcharts.chart("temperature-line-chart", {
+            chart: {
+              type: "line",
+            },
+            title: {
+              text: "Temperature 5 day forecast",
+            },
 
-        // Function to make the API request and update the weather data on the page
-        async function fetchCityWeatherByName(cityName, apiKey) {
-          const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=metric`;
+            xAxis: {
+              categories: xLabels,
+            },
+            yAxis: {
+              title: {
+                text: "Temperature (°C)",
+              },
+            },
+            plotOptions: {
+              line: {
+                dataLabels: {
+                  enabled: true,
+                },
+                enableMouseTracking: false,
+              },
+            },
+            series: [
+              {
+                name: "Daily Averages",
+                data: temperatures,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        async function fetchTemperatureMinMax(latitude, longitude, apiKey) {
+          const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+
           const response = await fetch(apiUrl);
           const data = await response.json();
-          const dateTemps = {};
+          const tempData = {};
 
-          data.list.forEach((datum) => {
-            const date = datum.dt_txt.split(" ")[0];
-            if (dateTemps[date] === undefined) dateTemps[date] = [];
-            dateTemps[date].push(datum.main.temp);
+          data.list.forEach((tempD) => {
+            const date = tempD.dt_txt.split(" ")[0];
+            if (tempData[date] === undefined) tempData[date] = [];
+            tempData[date].push(tempD.main.temp);
+          });
+          let minTemp = [];
+          let maxTemp = [];
+
+          for (const i in tempData) {
+            var minimumTemp = Math.min.apply(Math, tempData[i]);
+            var maximumTemp = Math.max.apply(Math, tempData[i]);
+
+            minTemp.push(minimumTemp);
+            maxTemp.push(maximumTemp);
+          }
+          return { minTemp, maxTemp };
+        }
+
+        function drawTemperatureMinMax({ minTemp, maxTemp }) {
+          Highcharts.chart("temperature-min-max-chart", {
+            chart: {
+              type: "area",
+            },
+            title: {
+              text: "Minimum and Maximum temperatures over the next five days",
+              align: "left",
+            },
+            subtitle: {
+              text: null,
+              align: "left",
+            },
+            yAxis: {
+              title: {
+                useHTML: true,
+                text: null,
+              },
+            },
+            tooltip: {
+              shared: true,
+              headerFormat:
+                '<span style="font-size:12px"><b>{point.key}</b></span><br>',
+            },
+            plotOptions: {
+              series: {
+                pointStart: 0,
+              },
+              area: {
+                stacking: "normal",
+                lineColor: "#666666",
+                lineWidth: 1,
+                marker: {
+                  lineWidth: 1,
+                  lineColor: "#666666",
+                },
+              },
+            },
+            series: [
+              {
+                name: "Maximum Temperature",
+                data: maxTemp,
+              },
+              {
+                name: "Minimum Temperture",
+                data: minTemp,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        async function getClimateEffects(latitude, longitude, apiKey) {
+          const dataUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+
+          const response = await fetch(dataUrl);
+          const data = await response.json();
+
+          const climateData = {};
+          climateData["humidity"] = [];
+          climateData["pressure"] = [];
+
+          data.list.forEach((datac) => {
+            climateData["humidity"].push(Number(datac.main.humidity) * 100);
+            climateData["pressure"].push(Number(datac.main.pressure));
           });
 
-          let averages = [];
-          let ranges = [];
+          return climateData;
+        }
 
-          for (const i in dateTemps) {
-            var minimumTemp = Math.min.apply(Math, dateTemps[i]);
-            var maximumTemp = Math.max.apply(Math, dateTemps[i]);
+        function drawHumidityPressure({ humidity, pressure }) {
+          Highcharts.chart("humidity-pressure-chart", {
+            chart: {
+              type: "area",
+            },
+            accessibility: {
+              description: null,
+            },
+            title: {
+              text: "Humidity and Pressure over the next five days",
+            },
+            subtitle: {
+              text: null,
+            },
+            xAxis: {
+              allowDecimals: false,
+              accessibility: {
+                rangeDescription: null,
+              },
+            },
+            yAxis: {
+              title: {
+                text: null,
+              },
+            },
+            tooltip: {
+              pointFormat: "",
+            },
+            plotOptions: {
+              area: {
+                pointStart: 0,
+                marker: {
+                  enabled: false,
+                  symbol: "circle",
+                  radius: 2,
+                  states: {
+                    hover: {
+                      enabled: true,
+                    },
+                  },
+                },
+              },
+            },
+            series: [
+              {
+                name: "Humidity in pa",
+                data: humidity,
+              },
+              {
+                name: "Pressure in hpa",
+                data: pressure,
+              },
+            ],
+          });
+        }
+      </script>
 
-            const avg = (minimumTemp + maximumTemp) / 2;
+      <script>
+        async function fetchAirPollution(latitude, longitude, apiKey) {
+          const dataUrl = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+          const response = await fetch(dataUrl);
+          const data = await response.json();
 
-            averages.push(avg);
-            ranges.push([minimumTemp, maximumTemp]);
+          const bigElements = new Set();
+          bigElements.add("co");
+          bigElements.add("nh3");
+          bigElements.add("no2");
+
+          let result = 0;
+
+          const chemicalElements = {};
+          const pollutryElements = data["list"][0]["components"];
+          for (const i in pollutryElements) {
+            if (!bigElements.has(i)) {
+              result += Number(pollutryElements[i]);
+            } else {
+              chemicalElements[i] = Number(pollutryElements[i]);
+            }
           }
-          drawChart(averages, ranges);
-          const temperature = data.list[0].main.temp;
-          const weatherDescription = data.list[0].weather[0].description;
+          chemicalElements["other"] = result;
+          return chemicalElements;
+        }
+        drawPollution({ a: 1, b: 2, c: 5 });
+        function drawPollution(pollutants) {
+          let totalAmount = 0;
+          for (const pollutant in pollutants) {
+            const amount = pollutants[pollutant];
+            totalAmount += amount;
+          }
 
-          return { temperature, weatherDescription };
+          const chartFeedData = [];
+          for (const pollutant in pollutants) {
+            const name = pollutant;
+            const amount = pollutants[pollutant];
+            const y = 100 * (amount / totalAmount);
+            chartFeedData.push({ name, y });
+          }
+
+          Highcharts.chart("pollution-chart", {
+            chart: {
+              plotBackgroundColor: null,
+              plotBorderWidth: null,
+              plotShadow: false,
+              type: "pie",
+            },
+            title: {
+              text: "Pollution",
+              align: "left",
+            },
+            tooltip: {
+              pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>",
+            },
+            accessibility: {
+              point: {
+                valueSuffix: "%",
+              },
+            },
+            plotOptions: {
+              pie: {
+                allowPointSelect: true,
+                cursor: "pointer",
+                dataLabels: {
+                  enabled: true,
+                  format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                },
+              },
+            },
+            series: [
+              {
+                name: "Brands",
+                colorByPoint: true,
+                data: chartFeedData,
+              },
+            ],
+          });
+        }
+      </script>
+
+      <script>
+        const apiKey = "b53bb6adf1943959415b4161b2a65cce";
+        async function getLocation(placeName, apiKey) {
+          const url = `http://api.openweathermap.org/geo/1.0/direct?q=${placeName}&appid=${apiKey}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          const { lat, lon } = data[0];
+          return [lat, lon];
+        }
+
+        async function searchThenDraw(placeName, apiKey) {
+          const [lat, long] = await getLocation(placeName, apiKey);
+
+          try {
+            drawTemperatureLine(await fetchTemperatureLine(lat, long, apiKey));
+            drawPollution(await fetchAirPollution(lat, long, apiKey));
+            drawHumidityPressure(await getClimateEffects(lat, long, apiKey));
+            drawTemperatureMinMax(
+              await fetchTemperatureMinMax(lat, long, apiKey)
+            );
+          } catch (error) {
+            throw error;
+          }
         }
 
         // Add event listener to the button
         const searchButton = document.getElementById("search");
-        searchButton.addEventListener("click", async () => {
-          const searchInput = document.getElementById("searchInput");
-          const cityName = searchInput.value;
-          const weatherContainer = document.getElementById("weatherContainer");
-
-          try {
-            const { temperature, weatherDescription } =
-              await fetchCityWeatherByName(cityName, apiKey);
-            weatherContainer.innerHTML = `Temperature: ${temperature}°C<br>Weather: ${weatherDescription}`;
-          } catch (error) {
-            console.error("Error fetching weather data:", error);
-            weatherContainer.innerHTML = "Error fetching weather data";
-          }
+        const searchInput = document.getElementById("searchInput");
+        searchButton.addEventListener("click", () => {
+          const placeName = searchInput.value;
+          searchThenDraw(placeName, apiKey);
         });
-        fetchCityWeatherByName("Addis Ababa", apiKey);
+
+        searchThenDraw("Addis Ababa", apiKey);
       </script>
     </div>
   </body>
